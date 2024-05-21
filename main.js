@@ -3,9 +3,9 @@
 const gameboard = (function() {
 
     let board = [
-        [ "", "", ""],
-        [ "", "", ""],
-        [ "", "", ""]
+        [ "", "X", "O"],
+        [ "O", "X", "X"],
+        [ "X", "O", "O"]
     ];
 
     return { board };
@@ -162,8 +162,27 @@ const game = (function() {
                 
                 winScore();
 
-            };
+            }
 
+        };
+
+
+        // check tie
+
+        if (
+            board[0].every( i => i !== "") &&
+            board[1].every( i => i !== "") &&
+            board[2].every( i => i !== "")
+        ) {
+
+            gameboard.board = [
+                [ "", "", ""],
+                [ "", "", ""],
+                [ "", "", ""]
+            ];
+
+            console.log('TIE!');
+    
         };
 
     };
