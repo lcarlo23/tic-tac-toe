@@ -3,9 +3,9 @@
 const gameboard = (function() {
 
     let board = [
-        [ "", "X", "O"],
-        [ "O", "X", "X"],
-        [ "X", "O", "O"]
+        [ "", "", ""],
+        [ "", "", ""],
+        [ "", "", ""]
     ];
 
     return { board };
@@ -13,7 +13,7 @@ const gameboard = (function() {
 })();
 
 
-// create players
+// function to create a player
 
 const createPlayer = function(name, mark) {
     
@@ -49,7 +49,7 @@ const createPlayer = function(name, mark) {
 const game = (function() {
 
 
-    // create players
+    // create players one and two
 
     const playerOne = createPlayer("Player One", "X");
     const playerTwo = createPlayer("Player Two", "O");
@@ -59,9 +59,8 @@ const game = (function() {
     // choose random player
 
     (function() {
-
+        
         playerRandomSel = Math.floor(Math.random() * 2);
-
         player = playerRandomSel === 0 ? playerOne : playerTwo;
 
         console.log(`${player.name} Starts`);
@@ -70,7 +69,7 @@ const game = (function() {
 
     })();
 
-
+    
     // alternate players after turn
     
     function switchPlayer() {
@@ -104,6 +103,8 @@ const game = (function() {
         console.table(gameboard.board);
 
         checkWin();
+
+        updateGrid();
 
         if (
             playerOne.getScore() < 3 &&
@@ -175,13 +176,13 @@ const game = (function() {
             board[2].every( i => i !== "")
         ) {
 
+            console.log('TIE!');
+            
             gameboard.board = [
                 [ "", "", ""],
                 [ "", "", ""],
                 [ "", "", ""]
             ];
-
-            console.log('TIE!');
     
         };
 
@@ -209,11 +210,70 @@ const game = (function() {
 
         };
 
+        gameboard.board = [
+            [ "", "", ""],
+            [ "", "", ""],
+            [ "", "", ""]
+        ];
+
         console.table(gameboard.board);
 
         return;
     
     }
+
+
+    // show player marks on grid
+
+    function updateGrid() {
+    
+        const board = gameboard.board;
+    
+        let i = 0;
+    
+        board.map((row) => {
+    
+            row.map((value) => {
+    
+                const cell = document.getElementById(`cell${[i+1]}`);
+    
+                cell.innerText = value;
+    
+                i++;
+    
+            });
+    
+        });
+    };
+
+    // listeners
+
+    const gameDisp = document.getElementById('gameboard');
+
+    gameDisp.addEventListener('click', e => {
+
+        const boardDisp = [
+            ['cell1', 'cell2', 'cell3'],
+            ['cell4', 'cell5', 'cell6'],
+            ['cell7', 'cell8', 'cell9']
+        ];
+
+        const target = e.target;
+
+        target.innerText = player.mark;
+
+        for (i = 0; i < boardDisp.length; i++) {
+
+            const index = boardDisp[i].indexOf(target.id);
+
+            if (index > -1) {
+
+                play(i,index);
+
+            }
+        }
+
+    });
 
     return { play };
     
