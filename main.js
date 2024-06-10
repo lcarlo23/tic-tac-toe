@@ -1,3 +1,10 @@
+// variables
+
+const announce = document.getElementById('turn');
+const scoreBoard = document.getElementById('score');
+const result = document.getElementById('result');
+
+
 // create gameboard
 
 const gameboard = (function() {
@@ -23,13 +30,21 @@ const createPlayer = function(name, mark) {
 
         ++score;
 
-        console.log(`${name} win!`);
+        result.innerText = `${name} win!`;
 
-        gameboard.board = [
-            [ "", "", ""],
-            [ "", "", ""],
-            [ "", "", ""]
-        ];
+        if (!result.innerText.includes('WON')) {
+
+            setTimeout(() => {
+            result.innerText = '';
+        }, 1000);
+
+            gameboard.board = [
+                [ "", "", ""],
+                [ "", "", ""],
+                [ "", "", ""]
+            ];
+
+        }
 
     };
 
@@ -63,11 +78,17 @@ const game = (function() {
         playerRandomSel = Math.floor(Math.random() * 2);
         player = playerRandomSel === 0 ? playerOne : playerTwo;
 
-        console.log(`${player.name} Starts`);
-        console.log(`to choose cell, run command: "game.play(row,column)"`)
-        console.table(gameboard.board);
+        announce.innerText = `${player.name} Starts`;
 
     })();
+
+
+    // show score
+    function showScore() {
+        scoreBoard.innerText = `Score : ${playerOne.getScore()} - ${playerTwo.getScore()}`;
+    };
+
+    showScore();
 
     
     // alternate players after turn
@@ -75,8 +96,6 @@ const game = (function() {
     function switchPlayer() {
 
         player = player === playerOne ? playerTwo : playerOne;
-
-        console.log(`${player.name} Turn`);
 
     };
 
@@ -87,31 +106,32 @@ const game = (function() {
 
         const cellRow = gameboard.board[row];
 
-        if (cellRow[column] === "") {
+        if (cellRow[column] == "") {
 
             cellRow[column] = player.mark;
 
         } else {
 
-            console.log('the cell is already taken');
-            console.table(gameboard.board);
+            announce.innerText = 'the cell is already taken!';
+
+            setTimeout(() => {announce.innerText = `${player.name} Turn`}, 1000);
 
             return;
 
         };
 
-        console.table(gameboard.board);
-
         checkWin();
-
-        updateGrid();
 
         if (
             playerOne.getScore() < 3 &&
             playerTwo.getScore() < 3
         ) {
-                    
+
             switchPlayer();
+
+            setTimeout(updateGrid, 1000);
+
+            announce.innerText = `${player.name} Turn`;
 
         };
 
@@ -176,7 +196,10 @@ const game = (function() {
             board[2].every( i => i !== "")
         ) {
 
-            console.log('TIE!');
+            result.innerText = 'TIE!';
+            setTimeout(() => {
+                result.innerText = '';
+            }, 1000);
             
             gameboard.board = [
                 [ "", "", ""],
@@ -195,28 +218,28 @@ const game = (function() {
 
         player.win();
 
-        console.log(`Score : ${playerOne.getScore()} - ${playerTwo.getScore()}`);
+        scoreBoard.innerText = `Score : ${playerOne.getScore()} - ${playerTwo.getScore()}`;
 
         if (
             playerOne.getScore() > 2 ||
             playerTwo.getScore() > 2
         ) {
             
-            console.log(
-                `${player.name} WON THE GAME!!!`
-            );
+            setTimeout(() => {result.innerText = `${player.name} WON THE GAME!!!`}, 1000);
+
+            gameDisp.removeEventListener('click', markGrid);
+
+            announce.innerText = '';
 
             return;
 
-        };
-
-        gameboard.board = [
-            [ "", "", ""],
-            [ "", "", ""],
-            [ "", "", ""]
-        ];
-
-        console.table(gameboard.board);
+        } else {
+            gameboard.board = [
+                [ "", "", ""],
+                [ "", "", ""],
+                [ "", "", ""]
+            ];
+        }
 
         return;
     
@@ -224,6 +247,8 @@ const game = (function() {
 
 
     // show player marks on grid
+
+    const gameDisp = document.getElementById('gameboard');
 
     function updateGrid() {
     
@@ -246,11 +271,7 @@ const game = (function() {
         });
     };
 
-    // listeners
-
-    const gameDisp = document.getElementById('gameboard');
-
-    gameDisp.addEventListener('click', e => {
+    function markGrid(e) {
 
         const boardDisp = [
             ['cell1', 'cell2', 'cell3'],
@@ -260,7 +281,11 @@ const game = (function() {
 
         const target = e.target;
 
-        target.innerText = player.mark;
+        if (target.innerText == '') {
+
+            target.innerText = player.mark;
+
+        };
 
         for (i = 0; i < boardDisp.length; i++) {
 
@@ -272,9 +297,13 @@ const game = (function() {
 
             }
         }
+    };
 
-    });
+    updateGrid();
+    
 
-    return { play };
+    // listeners
+
+    gameDisp.addEventListener('click', markGrid);
     
 })();
