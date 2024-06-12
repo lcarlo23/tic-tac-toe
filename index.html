@@ -9,19 +9,28 @@
 </head>
 <body>
     <h1 class="title">TIC-TAC-TOE</h1>
-    <div id="score"></div>
-    <div id="result"></div>
-    <div id="turn"></div>
-    <div id="gameboard">
-        <div id="cell1" class="cell"></div>
-        <div id="cell2" class="cell"></div>
-        <div id="cell3" class="cell"></div>
-        <div id="cell4" class="cell"></div>
-        <div id="cell5" class="cell"></div>
-        <div id="cell6" class="cell"></div>
-        <div id="cell7" class="cell"></div>
-        <div id="cell8" class="cell"></div>
-        <div id="cell9" class="cell"></div>
+    <form action="" id="nameForm">
+        <p>Choose your name</p>
+        <input type="text" id="nameOne" placeholder="Player One">
+        <input type="text" id="nameTwo" placeholder="Player Two">
+        <button type="button" id="startBtn">START</button>
+    </form>
+    <div id="gameArea">
+        <div id="turn"></div>
+        <div id="domBoard">
+            <div id="cell1" class="cell"></div>
+            <div id="cell2" class="cell"></div>
+            <div id="cell3" class="cell"></div>
+            <div id="cell4" class="cell"></div>
+            <div id="cell5" class="cell"></div>
+            <div id="cell6" class="cell"></div>
+            <div id="cell7" class="cell"></div>
+            <div id="cell8" class="cell"></div>
+            <div id="cell9" class="cell"></div>
+        </div>
+        <div id="scoreBoard">Score<br><span id="domScore"></span></div>
+        <div id="result"></div>
+        <button id="restartBtn">RESTART</button>
     </div>
 </body>
 </html>

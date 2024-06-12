@@ -1,94 +1,146 @@
-// variables
-
-const announce = document.getElementById('turn');
-const scoreBoard = document.getElementById('score');
-const result = document.getElementById('result');
+(function() {
 
 
-// create gameboard
+    // variables
 
-const gameboard = (function() {
+    const turn = document.getElementById('turn');
+    const domScore = document.getElementById('domScore');
+    const result = document.getElementById('result');
+    const gameArea = document.getElementById('gameArea');
+    const domBoard = document.getElementById('domBoard');
+    const startBtn = document.getElementById('startBtn');
+    const nameForm = document.getElementById('nameForm');
+    const nameOne = document.getElementById('nameOne');
+    const nameTwo = document.getElementById('nameTwo');
+    const restartBtn = document.getElementById('restartBtn');
 
-    let board = [
-        [ "", "", ""],
-        [ "", "", ""],
-        [ "", "", ""]
-    ];
-
-    return { board };
-
-})();
-
-
-// function to create a player
-
-const createPlayer = function(name, mark) {
-    
-    let score = 0;
-
-    function win() {
-
-        ++score;
-
-        result.innerText = `${name} win!`;
-
-        if (!result.innerText.includes('WON')) {
-
-            setTimeout(() => {
-            result.innerText = '';
-        }, 1000);
-
-            gameboard.board = [
-                [ "", "", ""],
-                [ "", "", ""],
-                [ "", "", ""]
-            ];
-
-        }
-
-    };
-
-    function getScore() {
-
-        return score;
-
-    };
-
-    return { name, mark, win, getScore };
-
-};
-
-
-// game functions
-
-const game = (function() {
-
-
-    // create players one and two
-
-    const playerOne = createPlayer("Player One", "X");
-    const playerTwo = createPlayer("Player Two", "O");
+    let playerOne;
+    let playerTwo;
     let player;
 
 
+    // listeners
+
+    startBtn.addEventListener('click', startGame);
+    restartBtn.addEventListener('click', restartGame);
+
+
+    // manage gameboard
+
+    const gameboard = (function() {
+
+        let board = [
+            [ "", "", ""],
+            [ "", "", ""],
+            [ "", "", ""]
+        ];
+
+        return { board };
+
+    })();
+
+    function resetBoard() {
+
+        gameboard.board = [
+            [ "", "", ""],
+            [ "", "", ""],
+            [ "", "", ""]
+        ];
+
+        updateGrid();
+
+    }
+
+
+    // function to create player one and two
+
+    const createPlayer = function(name, mark) {
+        
+        let score = 0;
+
+        function win() {
+
+            ++score;
+
+            result.innerText = `${name} win!`;
+
+            if (!result.innerText.includes('WON')) {
+
+                setTimeout(() => {
+                result.innerText = '';
+            }, 1000);
+
+            }
+
+        };
+
+        function getScore() {
+
+            return score;
+
+        };
+
+        function resetScore() {
+            score = 0;
+        }
+
+        return { name, mark, win, getScore, resetScore };
+
+    };
+    
+    
+    // create players and start the game
+
+    function startGame() {
+        
+        nameForm.style.display = 'none';
+        gameArea.style.display = 'flex';
+
+        playerOne = createPlayer(
+            nameOne.value == '' ? 'Player One' : nameOne.value,
+            'X');
+        playerTwo = createPlayer(
+            nameTwo.value == '' ? 'Player Two' : nameTwo.value,
+            'O');
+
+        randomPlayer();
+        showScore();
+
+        domBoard.addEventListener('click', markGrid);
+    };
+
+    // reset score and gameboard
+
+    function restartGame() {
+
+        result.innerText = '';
+
+        playerOne.resetScore();
+        playerTwo.resetScore();
+        resetBoard();
+        showScore();
+        randomPlayer();
+
+        domBoard.addEventListener('click', markGrid);
+                
+    };
+
     // choose random player
 
-    (function() {
+    function randomPlayer() {
         
         playerRandomSel = Math.floor(Math.random() * 2);
         player = playerRandomSel === 0 ? playerOne : playerTwo;
 
-        announce.innerText = `${player.name} Starts`;
+        turn.innerText = `${player.name} Starts`;
 
-    })();
+    };
 
 
     // show score
     function showScore() {
-        scoreBoard.innerText = `Score : ${playerOne.getScore()} - ${playerTwo.getScore()}`;
+        domScore.innerText = `${playerOne.getScore()} - ${playerTwo.getScore()}`;
     };
-
-    showScore();
 
     
     // alternate players after turn
@@ -112,9 +164,9 @@ const game = (function() {
 
         } else {
 
-            announce.innerText = 'the cell is already taken!';
+            turn.innerText = 'the cell is already taken!';
 
-            setTimeout(() => {announce.innerText = `${player.name} Turn`}, 1000);
+            setTimeout(() => {turn.innerText = `${player.name} Turn`}, 1000);
 
             return;
 
@@ -129,9 +181,7 @@ const game = (function() {
 
             switchPlayer();
 
-            setTimeout(updateGrid, 1000);
-
-            announce.innerText = `${player.name} Turn`;
+            turn.innerText = `${player.name} Turn`;
 
         };
 
@@ -197,15 +247,16 @@ const game = (function() {
         ) {
 
             result.innerText = 'TIE!';
+
+            domBoard.removeEventListener('click', markGrid);
+
             setTimeout(() => {
                 result.innerText = '';
             }, 1000);
             
-            gameboard.board = [
-                [ "", "", ""],
-                [ "", "", ""],
-                [ "", "", ""]
-            ];
+            setTimeout(resetBoard, 1000);
+
+            setTimeout(() => domBoard.addEventListener('click', markGrid), 1000);
     
         };
 
@@ -218,27 +269,30 @@ const game = (function() {
 
         player.win();
 
-        scoreBoard.innerText = `Score : ${playerOne.getScore()} - ${playerTwo.getScore()}`;
+        showScore();
 
         if (
             playerOne.getScore() > 2 ||
             playerTwo.getScore() > 2
         ) {
             
-            setTimeout(() => {result.innerText = `${player.name} WON THE GAME!!!`}, 1000);
+            setTimeout(() => {result.innerText = `${player.name}
+                                                    WON THE GAME!!!`}, 1000);
 
-            gameDisp.removeEventListener('click', markGrid);
+            domBoard.removeEventListener('click', markGrid);
 
-            announce.innerText = '';
+            turn.innerText = '';
 
             return;
 
         } else {
-            gameboard.board = [
-                [ "", "", ""],
-                [ "", "", ""],
-                [ "", "", ""]
-            ];
+            
+            domBoard.removeEventListener('click', markGrid);
+            
+            setTimeout(() => domBoard.addEventListener('click', markGrid), 1000);
+
+            setTimeout(resetBoard, 1000);
+
         }
 
         return;
@@ -248,7 +302,36 @@ const game = (function() {
 
     // show player marks on grid
 
-    const gameDisp = document.getElementById('gameboard');
+    function markGrid(e) {
+
+        const boardDisp = [
+            ['cell1', 'cell2', 'cell3'],
+            ['cell4', 'cell5', 'cell6'],
+            ['cell7', 'cell8', 'cell9']
+        ];
+
+        const target = e.target;
+
+        if (target.innerText == '' && target.classList.contains('cell')) {
+
+            target.innerText = player.mark;
+
+        };
+
+        for (i = 0; i < boardDisp.length; i++) {
+
+            const index = boardDisp[i].indexOf(target.id);
+
+            if (index > -1) {
+
+                play(i,index);
+
+            }
+        }
+    };
+
+
+    // update grid to show array on frontend
 
     function updateGrid() {
     
@@ -271,39 +354,4 @@ const game = (function() {
         });
     };
 
-    function markGrid(e) {
-
-        const boardDisp = [
-            ['cell1', 'cell2', 'cell3'],
-            ['cell4', 'cell5', 'cell6'],
-            ['cell7', 'cell8', 'cell9']
-        ];
-
-        const target = e.target;
-
-        if (target.innerText == '') {
-
-            target.innerText = player.mark;
-
-        };
-
-        for (i = 0; i < boardDisp.length; i++) {
-
-            const index = boardDisp[i].indexOf(target.id);
-
-            if (index > -1) {
-
-                play(i,index);
-
-            }
-        }
-    };
-
-    updateGrid();
-    
-
-    // listeners
-
-    gameDisp.addEventListener('click', markGrid);
-    
 })();
